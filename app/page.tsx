@@ -1,102 +1,150 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import { useState } from 'react';
+import { ArrowDownToLine } from 'lucide-react';
+import '@fortawesome/fontawesome-svg-core/styles.css';
+import { config } from '@fortawesome/fontawesome-svg-core';
+config.autoAddCss = false;
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBolt, faHeadphones, faShieldAlt } from '@fortawesome/free-solid-svg-icons';
+
+
+
+/**
+ * NyxDownloader HomePage
+ * Aplikasi pengunduh YouTube (MP3 / MP4) berbasis Next.js.
+ * Fitur: Input URL, Fetch dari API, Tampilkan link download.
+ */
+export default function HomePage() {
+  const [url, setUrl] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [videoData, setVideoData] = useState<null | {
+    title: string;
+    thumbnail: string;
+    duration: string;
+    mp4: { quality: string; format: string; url: string }[];
+    mp3: { quality: string; format: string; url: string }[];
+  }>(null);
+
+  /**
+   * Submit form: fetch video data dari API
+   */
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!url) return;
+    setLoading(true);
+    setVideoData(null);
+
+    try {
+      const res = await fetch(`/api/yt?url=${encodeURIComponent(url)}`);
+      const data = await res.json();
+      setVideoData(data);
+    } catch (err) {
+      console.error('Gagal fetch video:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-zinc-950 to-zinc-900 text-white">
+      <main className="flex-1 flex flex-col items-center px-4 pt-20 pb-10">
+        <h1 className="text-4xl font-bold text-purple-400 mb-2">NyxDownloader</h1>
+        <p className="text-zinc-400 mb-6 text-center max-w-xl">
+          Unduh video atau audio dari YouTube secara instan tanpa iklan dan ribet.
+        </p>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        <form onSubmit={handleSubmit} className="w-full max-w-xl flex gap-2">
+          <input
+            type="url"
+            placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+            className="flex-1 px-4 py-3 rounded-xl bg-zinc-800 text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+          />
+          <button
+            type="submit"
+            className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-3 rounded-xl font-semibold transition"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+            Download
+          </button>
+        </form>
+
+        {loading && <p className="mt-6 text-zinc-400 animate-pulse">Mengambil data video...</p>}
+
+        {videoData && (
+          <div className="mt-8 w-full max-w-2xl backdrop-blur-md bg-zinc-800/60 border border-zinc-700 rounded-2xl p-6 shadow-xl">
+            <div className="flex flex-col sm:flex-row gap-4 items-start">
+              <img
+                src={videoData.thumbnail}
+                alt="Thumbnail"
+                className="w-full sm:w-60 rounded-xl"
+              />
+              <div className="flex-1">
+                <h2 className="text-xl font-semibold mb-2">{videoData.title}</h2>
+                <p className="text-zinc-400 mb-4">Durasi: {videoData.duration}</p>
+
+                {videoData.mp4?.length > 0 && (
+                  <>
+                    <h3 className="text-lg font-semibold mb-2 mt-4 text-purple-400">Video (MP4)</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {videoData.mp4.map((f, i) => (
+                        <a
+                          key={`mp4-${i}`}
+                          href={f.url}
+                          className="flex items-center gap-2 bg-zinc-700 hover:bg-zinc-600 px-4 py-2 rounded-lg transition"
+                          download
+                        >
+                          <ArrowDownToLine size={18} />
+                          <span>{f.format} - {f.quality}</span>
+                        </a>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {videoData.mp3?.length > 0 && (
+                  <>
+                    <h3 className="text-lg font-semibold mb-2 mt-6 text-green-400">Audio (MP3)</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {videoData.mp3.map((f, i) => (
+                        <a
+                          key={`mp3-${i}`}
+                          href={f.url}
+                          className="flex items-center gap-2 bg-zinc-700 hover:bg-zinc-600 px-4 py-2 rounded-lg transition"
+                          download
+                        >
+                          <ArrowDownToLine size={18} />
+                          <span>{f.format} - {f.quality}</span>
+                        </a>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-16 text-center">
+  <div>
+    <FontAwesomeIcon icon={faBolt} size="2x" className="text-yellow-400 mb-2" />
+    <p className="text-zinc-300">Cepat & Mudah</p>
+  </div>
+  <div>
+    <FontAwesomeIcon icon={faHeadphones} size="2x" className="text-green-400 mb-2" />
+    <p className="text-zinc-300">MP3 / MP4</p>
+  </div>
+  <div>
+    <FontAwesomeIcon icon={faShieldAlt} size="2x" className="text-blue-400 mb-2" />
+    <p className="text-zinc-300">Tanpa Iklan</p>
+  </div>
+</div>
+
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+      <footer className="border-t border-zinc-800 text-center text-zinc-500 text-sm py-6">
+        © 2025 Munchy. All rights reserved.
       </footer>
     </div>
   );
