@@ -120,7 +120,7 @@ export default function HomePage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-16 text-center">
+        <div className="grid grid-cols-3 sm:grid-cols-3 gap-3 mt-16 text-center">
           <div>
             <FontAwesomeIcon icon={faBolt} size="2x" className="text-yellow-400 mb-2" />
             <p className="text-zinc-300">Cepat & Mudah</p>
