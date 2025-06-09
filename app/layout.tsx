@@ -15,7 +15,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Yt Downloader",
   description: "NyxDownloader is a modern, minimalist YouTube downloader built with Next.js. Instantly download YouTube videos and audio in MP3 or MP4 format without ads or distractions.",
+icons: {
+    icon: '/favicon.ico',
+  },
 };
+
 
 export default function RootLayout({
   children,
