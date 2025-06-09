@@ -7,14 +7,8 @@ import { config } from '@fortawesome/fontawesome-svg-core';
 config.autoAddCss = false;
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBolt, faHeadphones, faShieldAlt } from '@fortawesome/free-solid-svg-icons';
+import Image from 'next/image';
 
-
-
-/**
- * NyxDownloader HomePage
- * Aplikasi pengunduh YouTube (MP3 / MP4) berbasis Next.js.
- * Fitur: Input URL, Fetch dari API, Tampilkan link download.
- */
 export default function HomePage() {
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,9 +20,6 @@ export default function HomePage() {
     mp3: { quality: string; format: string; url: string }[];
   }>(null);
 
-  /**
-   * Submit form: fetch video data dari API
-   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!url) return;
@@ -75,11 +66,14 @@ export default function HomePage() {
         {videoData && (
           <div className="mt-8 w-full max-w-2xl backdrop-blur-md bg-zinc-800/60 border border-zinc-700 rounded-2xl p-6 shadow-xl">
             <div className="flex flex-col sm:flex-row gap-4 items-start">
-              <img
-                src={videoData.thumbnail}
-                alt="Thumbnail"
-                className="w-full sm:w-60 rounded-xl"
-              />
+              <div className="w-full sm:w-60 relative aspect-video">
+                <Image
+                  src={videoData.thumbnail}
+                  alt="Thumbnail"
+                  fill
+                  className="rounded-xl object-cover"
+                />
+              </div>
               <div className="flex-1">
                 <h2 className="text-xl font-semibold mb-2">{videoData.title}</h2>
                 <p className="text-zinc-400 mb-4">Durasi: {videoData.duration}</p>
@@ -126,21 +120,20 @@ export default function HomePage() {
           </div>
         )}
 
-       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-16 text-center">
-  <div>
-    <FontAwesomeIcon icon={faBolt} size="2x" className="text-yellow-400 mb-2" />
-    <p className="text-zinc-300">Cepat & Mudah</p>
-  </div>
-  <div>
-    <FontAwesomeIcon icon={faHeadphones} size="2x" className="text-green-400 mb-2" />
-    <p className="text-zinc-300">MP3 / MP4</p>
-  </div>
-  <div>
-    <FontAwesomeIcon icon={faShieldAlt} size="2x" className="text-blue-400 mb-2" />
-    <p className="text-zinc-300">Tanpa Iklan</p>
-  </div>
-</div>
-
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-16 text-center">
+          <div>
+            <FontAwesomeIcon icon={faBolt} size="2x" className="text-yellow-400 mb-2" />
+            <p className="text-zinc-300">Cepat & Mudah</p>
+          </div>
+          <div>
+            <FontAwesomeIcon icon={faHeadphones} size="2x" className="text-green-400 mb-2" />
+            <p className="text-zinc-300">MP3 / MP4</p>
+          </div>
+          <div>
+            <FontAwesomeIcon icon={faShieldAlt} size="2x" className="text-blue-400 mb-2" />
+            <p className="text-zinc-300">Tanpa Iklan</p>
+          </div>
+        </div>
       </main>
 
       <footer className="border-t border-zinc-800 text-center text-zinc-500 text-sm py-6">
